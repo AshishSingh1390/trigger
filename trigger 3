@@ -2,20 +2,22 @@ tigger on account that add 'Premium' its first associate contact firstName if ac
 trigger updateConNameOnBasisOfAccAmn on Account (after insert,after update) {
     set<id> accId = new set <id>();
     for(account ac:trigger.new){
-        if(ac.AnnualRevenue>=30000){
+         if(ac.AnnualRevenue >= 30000
+            || trigger.oldMap.get(ac.id).AnnualRevenue >= 30000){
             accId.add(ac.Id);
         }
     }
-    list <account> accList =[select id,(select id,firstName,createdDate from contacts order by createdDate asc)from account where id IN:accId];
+    list <Account> accList = [select id,(select firstName,createdDate from contacts order by createdDate asc limit 1)from Account where id IN:accId];
     list <contact> conList = new list <contact>();
-    for(account acc : accList){
-        for(contact c: acc.contacts){
-         acc.contacts[0].FirstName ='Premium'+ c.FirstName;
-        conList.add(c);
+for(Account acc:accList){
+    for(contact con : accList){
+        con[0].FirstName ='Premium'+con.FirstName;
+        conList.add(con);
         }
-    }
+}
     if(conList.size()>0){
-        update conList;
+        update conList; 
     }
 
 }
+error found on line number 14(Expression must be list type:contact)
